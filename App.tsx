@@ -1,45 +1,68 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect } from 'react';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { View, Text, Button } from 'react-native';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
-import {
-  SafeAreaProvider,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { store } from './src/store';
+import { RootState } from './src/store/root.reducer';
+import LoginScreen from './src/screens/LoginScreen';
+import { rehydrateRequest, logout } from './src//auth/auth.slice';
+import styles from './src/styles/style';
+import { socketConnect, socketDisconnect } from './src/socket/socket.events';
+import { watchAppState } from './src/utils/app.lifecycle';
+import { sendMessageRequest } from './src/chat/chat.slice';
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+const Root = () => {
+  const dispatch = useDispatch();
 
-  return (
-    <SafeAreaProvider>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <AppContent />
-    </SafeAreaProvider>
+  useEffect(() => {
+    const unsubscribe = watchAppState(
+      () => dispatch(socketConnect()),
+      () => dispatch(socketDisconnect()),
+    );
+
+    return () => {
+      dispatch(socketDisconnect());
+      unsubscribe();
+    };
+  }, [dispatch]);
+
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
   );
-}
 
-function AppContent() {
-  const safeAreaInsets = useSafeAreaInsets();
+  useEffect(() => {
+    dispatch(rehydrateRequest());
+  }, [dispatch]);
+
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
 
   return (
-    <View style={styles.container}>
-      <NewAppScreen
-        templateFileName="App.tsx"
-        safeAreaInsets={safeAreaInsets}
+    <View style={styles.center}>
+      <Text style={styles.title}>Welcome to Textriz</Text>
+      <Button
+        title="Send Test Message"
+        onPress={() =>
+          dispatch(
+            sendMessageRequest({
+              id: Date.now().toString(),
+              text: 'hello from textriz',
+              senderId: 'me',
+            }),
+          )
+        }
       />
+
+      <Button title="Logout" onPress={() => dispatch(logout())} />
     </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+const App = () => (
+  <Provider store={store}>
+    <Root />
+  </Provider>
+);
 
 export default App;
