@@ -1,13 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface Message {
-  id: string;
-  text: string;
-  senderId: string;
-}
+import { ChatMessage } from './chat.types';
 
 interface ChatState {
-  messages: Message[];
+  messages: ChatMessage[];
 }
 
 const initialState: ChatState = {
@@ -18,15 +13,26 @@ const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    messageReceived(state, action: PayloadAction<Message>) {
-      state.messages.push(action.payload);
+    messageReceived(state, action: PayloadAction<ChatMessage>) {
+      const exists = state.messages.find(m => m.id === action.payload.id);
+      if (!exists) {
+        state.messages.unshift(action.payload);
+      }
     },
-    clearChat() {
-      return initialState;
+
+    clearChat(state) {
+      state.messages = [];
     },
-    sendMessageRequest(_state, _action) {
-      // saga trigger only
-    },
+    sendMessageRequest(
+      state,
+      action: PayloadAction<{
+        id: string;
+        text: string;
+        senderId: string;
+        createdAt: Date;
+        toUserId: string;
+      }>,
+    ) {},
   },
 });
 

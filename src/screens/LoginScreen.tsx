@@ -5,7 +5,7 @@ import { loginRequest } from '../auth/auth.slice';
 import { RootState } from '../store/root.reducer';
 import styles from '../styles/style';
 
-const LoginScreen = () => {
+const LoginScreen = ({ onRegisterPress }: { onRegisterPress: () => void }) => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state: RootState) => state.auth);
 
@@ -29,6 +29,7 @@ const LoginScreen = () => {
       />
 
       {error && <Text style={styles.errorText}>{error}</Text>}
+      <Button title="Create account" onPress={onRegisterPress} />
     </View>
   );
 };

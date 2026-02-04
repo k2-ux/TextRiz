@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { loginApi } from '../api/auth.api';
+import { loginApi, registerApi } from '../api/auth.api';
 import { tokenStorage } from '../utils/token.storage';
 import {
   loginRequest,
@@ -8,8 +8,25 @@ import {
   logout,
   rehydrateSuccess,
   rehydrateRequest,
+  registerFailure,
+  registerRequest,
 } from './auth.slice';
 import { socketConnect, socketDisconnect } from '../socket/socket.events';
+function* handleRegister(
+  action: ReturnType<typeof registerRequest>,
+): Generator {
+  try {
+    const response: any = yield call(registerApi, action.payload);
+
+    const { user, accessToken, refreshToken } = response.data;
+
+    yield call(tokenStorage.setTokens, accessToken, refreshToken);
+    yield put(loginSuccess(user));
+    yield put(socketConnect());
+  } catch (e: any) {
+    yield put(registerFailure(e?.message || 'Registration failed'));
+  }
+}
 
 // ===== Login flow =====
 function* handleLogin(action: ReturnType<typeof loginRequest>): Generator {
@@ -20,6 +37,8 @@ function* handleLogin(action: ReturnType<typeof loginRequest>): Generator {
 
     yield call(tokenStorage.setTokens, accessToken, refreshToken);
     yield put(loginSuccess(user));
+    console.log('✅ loginSuccess, dispatching socketConnect');
+
     yield put(socketConnect());
   } catch (error: any) {
     const message =
@@ -69,4 +88,5 @@ export default function* authSaga(): Generator {
   yield takeLatest(loginRequest, handleLogin);
   yield takeLatest(rehydrateRequest, handleRehydrate);
   yield takeLatest(logout, handleLogout);
+  yield takeLatest(registerRequest.type, handleRegister);
 }

@@ -20,6 +20,15 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     // ✅ FIX IS HERE
+    registerRequest(state, action) {
+      state.loading = true;
+      state.error = null;
+    },
+    registerFailure(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
     loginRequest(state, _action: PayloadAction<LoginPayload>) {
       state.loading = true;
       state.error = null;
@@ -57,6 +66,8 @@ export const {
   logout,
   rehydrateRequest,
   rehydrateSuccess,
+  registerRequest,
+  registerFailure,
 } = authSlice.actions;
 
 export default authSlice.reducer;

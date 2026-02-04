@@ -10,3 +10,6 @@ export const refreshTokenApi = (refreshToken: string) => {
 export const loginApi = (payload: LoginPayload) => {
   return api.post('/auth/login', payload);
 };
+export const registerApi = (payload: { email: string; password: string }) => {
+  return api.post('/auth/register', payload);
+};

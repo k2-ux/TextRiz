@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
-import { View, Text, Button } from 'react-native';
 
 import { store } from './src/store';
 import { RootState } from './src/store/root.reducer';
@@ -10,6 +9,8 @@ import styles from './src/styles/style';
 import { socketConnect, socketDisconnect } from './src/socket/socket.events';
 import { watchAppState } from './src/utils/app.lifecycle';
 import { sendMessageRequest } from './src/chat/chat.slice';
+import ChatScreen from './src/screens/ChatScreen';
+import RegisterScreen from './src/screens/RegisterScreen';
 
 const Root = () => {
   const dispatch = useDispatch();
@@ -33,36 +34,25 @@ const Root = () => {
   useEffect(() => {
     dispatch(rehydrateRequest());
   }, [dispatch]);
+  const [showRegister, setShowRegister] = useState(false);
 
   if (!isAuthenticated) {
-    return <LoginScreen />;
+    return showRegister ? (
+      <RegisterScreen onLoginPress={() => setShowRegister(false)} />
+    ) : (
+      <LoginScreen onRegisterPress={() => setShowRegister(true)} />
+    );
   }
 
-  return (
-    <View style={styles.center}>
-      <Text style={styles.title}>Welcome to Textriz</Text>
-      <Button
-        title="Send Test Message"
-        onPress={() =>
-          dispatch(
-            sendMessageRequest({
-              id: Date.now().toString(),
-              text: 'hello from textriz',
-              senderId: 'me',
-            }),
-          )
-        }
-      />
-
-      <Button title="Logout" onPress={() => dispatch(logout())} />
-    </View>
-  );
+  return <ChatScreen />;
 };
 
-const App = () => (
-  <Provider store={store}>
-    <Root />
-  </Provider>
-);
+const App = () => {
+  return (
+    <Provider store={store}>
+      <Root />
+    </Provider>
+  );
+};
 
 export default App;

@@ -4,6 +4,8 @@ import { SOCKET_URL } from '@env';
 let socket: Socket | null = null;
 
 export const createSocket = (token: string) => {
+  console.log('🧠 createSocket called with token:', token);
+
   if (socket) {
     return socket;
   }
@@ -14,6 +16,13 @@ export const createSocket = (token: string) => {
       token,
     },
     autoConnect: false,
+  });
+  socket.on('connect', () => {
+    console.log('🟢 SOCKET CONNECTED (socket.ts)');
+  });
+
+  socket.on('message', msg => {
+    console.log('📥 RAW socket message', msg);
   });
 
   return socket;
@@ -35,7 +44,12 @@ export const disconnectSocket = () => {
 
 export const sendMessage = (message: any) => {
   const socket = getSocket();
-  if (!socket) return;
+  console.log('🔌 socket instance:', socket);
+
+  if (!socket) {
+    console.log('❌ socket is null');
+    return;
+  }
 
   socket.emit('message', message);
 };
