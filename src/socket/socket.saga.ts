@@ -4,6 +4,8 @@ import { socketConnect, socketDisconnect } from './socket.events';
 import { createSocket, disconnectSocket, getSocket } from './socket';
 import { tokenStorage } from '../utils/token.storage';
 import { messageReceived } from '../chat/chat.slice';
+import { joinPrivateRoom } from './socket.events';
+import { leavePrivateRoom } from './socket.events';
 
 const myUserId = '698101b89afe0491b50a7477';
 const otherUserId = '6980f2c849cc236f93afa9cd';
@@ -51,18 +53,11 @@ function* handleSocketConnect(): Generator {
   const socket = createSocket(token);
 
   socket.on('connect', () => {
-    console.log('🟢 socket CONNECTED, starting message watcher');
+    console.log('🟢 socket CONNECTED');
   });
 
   socket.connect();
-  const roomId = getPrivateRoomId(myUserId, otherUserId);
 
-  // 👇 IMPORTANT: wait until connected
-  while (!socket.connected) {
-    yield call(() => new Promise(res => setTimeout(res, 100)));
-  }
-  socket.emit('chat:join', roomId);
-  console.log('🏠 joined room', roomId);
   yield fork(watchMessages);
 }
 
@@ -70,7 +65,40 @@ function* handleSocketDisconnect(): Generator {
   yield call(disconnectSocket);
 }
 
+function* handleJoinPrivateRoom(
+  action: ReturnType<typeof joinPrivateRoom>,
+): Generator {
+  const socket = getSocket();
+  if (!socket) return;
+
+  // wait until socket connected
+  while (!socket.connected) {
+    yield call(() => new Promise<void>(res => setTimeout(res, 100)));
+  }
+
+  const { myUserId, otherUserId } = action.payload;
+  const roomId = getPrivateRoomId(myUserId, otherUserId);
+
+  socket.emit('chat:join', roomId);
+  console.log('🏠 joined room', roomId);
+}
+
+function* handleLeavePrivateRoom(
+  action: ReturnType<typeof leavePrivateRoom>,
+): Generator {
+  const socket = getSocket();
+  if (!socket) return;
+
+  const { myUserId, otherUserId } = action.payload;
+  const roomId = getPrivateRoomId(myUserId, otherUserId);
+
+  socket.emit('chat:leave', roomId);
+  console.log('🚪 left room', roomId);
+}
+
 export default function* socketSaga(): Generator {
   yield takeLatest(socketConnect.type, handleSocketConnect);
   yield takeLatest(socketDisconnect.type, handleSocketDisconnect);
+  yield takeLatest(joinPrivateRoom.type, handleJoinPrivateRoom);
+  yield takeLatest(leavePrivateRoom.type, handleLeavePrivateRoom);
 }

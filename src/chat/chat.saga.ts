@@ -1,20 +1,23 @@
 import { takeLatest, call, put } from 'redux-saga/effects';
-import { getSocket, sendMessage } from '../socket/socket';
+import { getSocket } from '../socket/socket';
 import {
-  // loadHistoryRequest,
-  // loadHistorySuccess,
   sendMessageRequest,
+  loadHistoryRequest,
+  loadHistorySuccess,
 } from './chat.slice';
 import { fetchChatHistoryApi } from '../api/chat.api';
 
+/* =====================
+   SEND MESSAGE
+   ===================== */
 function* handleSendMessage(
   action: ReturnType<typeof sendMessageRequest>,
 ): Generator {
   console.log('📡 Saga got message:', action.payload);
 
   const socket = getSocket();
-  if (!socket) {
-    console.log('❌ socket is null');
+  if (!socket || !socket.connected) {
+    console.log('❌ socket not ready');
     return;
   }
 
@@ -24,30 +27,36 @@ function* handleSendMessage(
   });
 }
 
-// export default function* chatSaga(): Generator {
-//   yield takeLatest(sendMessageRequest.type, handleSendMessage);
-// }
-// function* handleLoadHistory(
-//   action: ReturnType<typeof loadHistoryRequest>,
-// ): Generator {
-//   try {
-//     const { otherUserId } = action.payload;
+/* =====================
+   LOAD CHAT HISTORY
+   ===================== */
+function* handleLoadHistory(
+  action: ReturnType<typeof loadHistoryRequest>,
+): Generator {
+  try {
+    const res: any = yield call(
+      fetchChatHistoryApi,
+      action.payload.otherUserId,
+    );
 
-//     const response: any = yield call(fetchChatHistoryApi, otherUserId);
+    const messages = res.data.map((m: any) => ({
+      id: m._id,
+      text: m.text,
+      senderId: m.from,
+      createdAt: new Date(m.createdAt),
+    }));
 
-//     const messages = response.data.map((m: any) => ({
-//       id: m._id,
-//       text: m.text,
-//       senderId: m.senderId,
-//       createdAt: new Date(m.createdAt),
-//     }));
+    // oldest → newest for GiftedChat
+    yield put(loadHistorySuccess(messages.reverse()));
+  } catch (e) {
+    console.log('❌ failed to load chat history', e);
+  }
+}
 
-//     yield put(loadHistorySuccess(messages.reverse()));
-//   } catch (e) {
-//   }
-// }
-
+/* =====================
+   WATCHERS
+   ===================== */
 export default function* chatSaga(): Generator {
   yield takeLatest(sendMessageRequest.type, handleSendMessage);
-  // yield takeLatest(loadHistoryRequest, handleLoadHistory);
+  yield takeLatest(loadHistoryRequest.type, handleLoadHistory);
 }

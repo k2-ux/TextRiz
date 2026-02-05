@@ -1,30 +1,53 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { View, Alert } from 'react-native';
+import { GiftedChat } from 'react-native-gifted-chat';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRoute } from '@react-navigation/native';
+
 import { RootState } from '../store/root.reducer';
-// import { sendMessageRequest } from '../chat/chat.slice';
-import { GiftedChat, IMessage } from 'react-native-gifted-chat';
-import { useEffect } from 'react';
-// import { loadHistoryRequest } from '../chat/chat.slice';
-import { Alert, Button, View } from 'react-native';
+import { loadHistoryRequest, sendMessageRequest } from '../chat/chat.slice';
+import { joinPrivateRoom, leavePrivateRoom } from '../socket/socket.events';
 import { getSocket } from '../socket/socket';
-import { sendMessageRequest } from '../chat/chat.slice';
-import { socketDisconnect } from '../socket/socket.events';
-import { logout } from '../auth/auth.slice';
-const OTHER_USER_ID = '6980f2c849cc236f93afa9cd';
+
+type RouteParams = {
+  otherUserId: string;
+};
 
 const ChatScreen = () => {
   const dispatch = useDispatch();
-  const messages = useSelector((state: RootState) => state.chat.messages);
-  const onLogout = () => {
-    dispatch(socketDisconnect());
-    dispatch(logout());
-  };
-  // useEffect(() => {
-  //   if (messages.length === 0) {
-  //     dispatch(loadHistoryRequest({ otherUserId: OTHER_USER_ID }));
-  //   }
-  // }, [dispatch, messages.length]);
+  const route = useRoute<any>();
+  const { otherUserId } = route.params as RouteParams;
 
+  const messages = useSelector((state: RootState) => state.chat.messages);
+  const me = useSelector((state: RootState) => state.users.me);
+
+  /* =====================
+     JOIN ROOM + LOAD HISTORY
+     ===================== */
+  useEffect(() => {
+    if (!me) return;
+
+    dispatch(
+      joinPrivateRoom({
+        myUserId: me.id,
+        otherUserId,
+      }),
+    );
+
+    dispatch(loadHistoryRequest({ otherUserId }));
+    return () => {
+      dispatch(
+        leavePrivateRoom({
+          myUserId: me.id,
+          otherUserId,
+        }),
+      );
+    };
+  }, [dispatch, me, otherUserId]);
+
+  /* =====================
+     SEND MESSAGE
+     ===================== */
   const onSend = useCallback(
     (msgs = []) => {
       const socket = getSocket();
@@ -35,23 +58,22 @@ const ChatScreen = () => {
       }
 
       const m = msgs[0];
+
       dispatch(
         sendMessageRequest({
           id: m._id,
           text: m.text,
-          senderId: 'me',
-          toUserId: OTHER_USER_ID, // 🔥 REQUIRED
+          senderId: me?.id || 'me',
+          toUserId: otherUserId,
           createdAt: new Date(),
         }),
       );
     },
-    [dispatch],
+    [dispatch, otherUserId, me],
   );
 
   return (
     <View style={{ flex: 1 }}>
-      <Button title="Logout" onPress={onLogout} />
-
       <GiftedChat
         messages={messages.map(m => ({
           _id: m.id,
@@ -59,8 +81,8 @@ const ChatScreen = () => {
           createdAt: m.createdAt,
           user: { _id: m.senderId },
         }))}
-        onSend={onSend}
-        user={{ _id: 'me' }}
+        onSend={() => onSend()}
+        user={{ _id: me?.id || 'me' }}
       />
     </View>
   );

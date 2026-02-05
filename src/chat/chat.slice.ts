@@ -3,10 +3,12 @@ import { ChatMessage } from './chat.types';
 
 interface ChatState {
   messages: ChatMessage[];
+  loading: boolean;
 }
 
 const initialState: ChatState = {
   messages: [],
+  loading: false,
 };
 
 const chatSlice = createSlice({
@@ -18,6 +20,16 @@ const chatSlice = createSlice({
       if (!exists) {
         state.messages.unshift(action.payload);
       }
+    },
+    loadHistoryRequest(state) {
+      state.loading = true;
+    },
+    loadHistorySuccess(state, action) {
+      state.loading = false;
+      state.messages = action.payload;
+    },
+    loadHistoryFailure(state) {
+      state.loading = false;
     },
 
     clearChat(state) {
@@ -36,6 +48,12 @@ const chatSlice = createSlice({
   },
 });
 
-export const { messageReceived, clearChat, sendMessageRequest } =
-  chatSlice.actions;
+export const {
+  messageReceived,
+  clearChat,
+  sendMessageRequest,
+  loadHistoryFailure,
+  loadHistoryRequest,
+  loadHistorySuccess,
+} = chatSlice.actions;
 export default chatSlice.reducer;

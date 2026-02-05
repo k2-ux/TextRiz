@@ -11,6 +11,8 @@ import { watchAppState } from './src/utils/app.lifecycle';
 import { sendMessageRequest } from './src/chat/chat.slice';
 import ChatScreen from './src/screens/ChatScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
+import { NavigationContainer } from '@react-navigation/native';
+import AppNavigator from './src/navigator/AppNavigator';
 
 const Root = () => {
   const dispatch = useDispatch();
@@ -44,7 +46,11 @@ const Root = () => {
     );
   }
 
-  return <ChatScreen />;
+  return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+  );
 };
 
 const App = () => {
