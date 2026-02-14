@@ -1,97 +1,109 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+<img width="1080" height="2400" alt="Screenshot_1771091873" src="https://github.com/user-attachments/assets/4f7fad61-862d-4e15-9ef0-e260c5f10672" />
+<img width="1080" height="2400" alt="Screenshot_1771091868" src="https://github.com/user-attachments/assets/5673de55-da7f-4fd0-ba9c-dc7e72cc8211" />
+<img width="1080" height="2400" alt="Screenshot_1771091852" src="https://github.com/user-attachments/assets/5f621e9f-3682-4ff1-b826-5ebdbe9e2907" />
+<img width="1080" height="2400" alt="Screenshot_1771091710" src="https://github.com/user-attachments/assets/fdd27c8f-f175-4704-b233-b1f8abcbee00" />
 
-# Getting Started
+Textriz – Real-Time Private Chat App
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Textriz is a full-stack real-time chat application built with React Native and Node.js.
+It supports secure authentication, private messaging, and persistent chat history.
 
-## Step 1: Start Metro
+Tech Stack
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+Frontend
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+React Native (CLI)
 
-```sh
-# Using npm
-npm start
+TypeScript
 
-# OR using Yarn
-yarn start
-```
+Redux Toolkit + Redux-Saga
 
-## Step 2: Build and run your app
+Axios (with JWT interceptor)
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Socket.IO Client
 
-### Android
+React Navigation
 
-```sh
-# Using npm
-npm run android
+react-native-gifted-chat
 
-# OR using Yarn
-yarn android
-```
+Backend
 
-### iOS
+Node.js
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+Express
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+MongoDB + Mongoose
 
-```sh
-bundle install
-```
+JWT (Access & Refresh tokens)
 
-Then, and every time you update your native dependencies, run:
+Socket.IO
 
-```sh
-bundle exec pod install
-```
+Features
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+User registration & login (JWT-based authentication)
 
-```sh
-# Using npm
-npm run ios
+Access + refresh token flow
 
-# OR using Yarn
-yarn ios
-```
+Secure token storage & auto session rehydration
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Search users by email
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+One-to-one private chat
 
-## Step 3: Modify your app
+Real-time messaging using Socket.IO
 
-Now that you have successfully run the app, let's make changes!
+Chat history persistence in MongoDB
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+Typing indicator
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+Room-based socket architecture
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+Clean navigation: Home → Chat → Back → Logout
 
-## Congratulations! :tada:
+Application Flow
 
-You've successfully run and modified your React Native App. :partying_face:
+User registers or logs in
 
-### Now what?
+User lands on Home screen
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+User searches another user by email
 
-# Troubleshooting
+User opens chat
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+Chat history loads
 
-# Learn More
+Messages are exchanged in real-time
 
-To learn more about React Native, take a look at the following resources:
+User can navigate back or logout
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Key Implementation Highlights
+
+Token refresh handling via Axios interceptor
+
+Redux-Saga for async side effects
+
+Event-driven socket room join/leave
+
+Proper separation of API, state, and socket layers
+
+Persistent chat storage with MongoDB
+
+Running the Project
+Backend
+npm install
+npm run dev
+
+Frontend
+npm install
+npx react-native run-android
+
+
+This project demonstrates:
+
+Strong understanding of authentication flow
+
+Real-time communication architecture
+
+Clean Redux-Saga state management
+
+Full-stack integration between mobile app and backend
