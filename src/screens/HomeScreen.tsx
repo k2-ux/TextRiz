@@ -5,7 +5,6 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  Button,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/root.reducer';
@@ -18,41 +17,89 @@ const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const { me, results } = useSelector((state: RootState) => state.users);
 
-  const [query, setQuery] = useState('');
+  const [emailQuery, setEmailQuery] = useState('');
 
   useEffect(() => {
     dispatch(loadMeRequest());
   }, [dispatch]);
 
   const onSearch = () => {
-    if (!query.trim()) return;
-    dispatch(searchUsersRequest(query));
+    if (!emailQuery.trim()) return;
+
+    dispatch(
+      searchUsersRequest({
+        email: emailQuery.trim().toLowerCase(),
+      }),
+    );
   };
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <Button title="Logout" onPress={() => dispatch(logout())} />
+    <View style={{ flex: 1, backgroundColor: '#fff', padding: 16 }}>
+      {/* Header */}
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 20,
+        }}
+      >
+        <Text style={{ fontSize: 22, fontWeight: '600' }}>Home</Text>
 
-      <Text style={{ marginVertical: 8 }}>Your User ID:</Text>
-      <Text selectable style={{ fontWeight: 'bold', color: 'black' }}>
+        <TouchableOpacity onPress={() => dispatch(logout())}>
+          <Text style={{ color: '#d32f2f', fontSize: 14 }}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* My user ID */}
+      <Text style={{ fontSize: 14, marginBottom: 6 }}>Your User ID</Text>
+
+      <Text
+        selectable
+        style={{
+          backgroundColor: '#f5f5f5',
+          padding: 12,
+          borderRadius: 6,
+          fontSize: 13,
+          marginBottom: 20,
+        }}
+      >
         {me?.id}
       </Text>
 
+      {/* Email search */}
       <TextInput
-        placeholder="Search friend by user ID"
-        value={query}
-        onChangeText={setQuery}
+        placeholder="Search friend by email"
+        value={emailQuery}
+        onChangeText={setEmailQuery}
         onSubmitEditing={onSearch}
+        autoCapitalize="none"
+        keyboardType="email-address"
         style={{
           borderWidth: 1,
-          padding: 10,
-          marginVertical: 16,
+          borderColor: '#ddd',
+          borderRadius: 8,
+          padding: 12,
+          fontSize: 14,
+          marginBottom: 16,
         }}
       />
 
+      {/* Results */}
       <FlatList
         data={results}
         keyExtractor={item => item.id}
+        ListEmptyComponent={
+          <Text
+            style={{
+              textAlign: 'center',
+              color: '#777',
+              marginTop: 32,
+            }}
+          >
+            No users found
+          </Text>
+        }
         renderItem={({ item }) => (
           <TouchableOpacity
             onPress={() =>
@@ -61,12 +108,17 @@ const HomeScreen = () => {
               })
             }
             style={{
-              padding: 12,
+              paddingVertical: 12,
               borderBottomWidth: 1,
+              borderColor: '#eee',
             }}
           >
-            <Text>{item.email}</Text>
-            <Text style={{ fontSize: 12 }}>{item.id}</Text>
+            <Text style={{ fontSize: 14, fontWeight: '500' }}>
+              {item.email}
+            </Text>
+            <Text style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+              {item.id}
+            </Text>
           </TouchableOpacity>
         )}
       />

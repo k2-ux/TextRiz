@@ -3,12 +3,13 @@ import { call, fork, put, take, takeLatest } from 'redux-saga/effects';
 import { socketConnect, socketDisconnect } from './socket.events';
 import { createSocket, disconnectSocket, getSocket } from './socket';
 import { tokenStorage } from '../utils/token.storage';
-import { messageReceived } from '../chat/chat.slice';
+import {
+  messageReceived,
+  typingStarted,
+  typingStopped,
+} from '../chat/chat.slice';
 import { joinPrivateRoom } from './socket.events';
 import { leavePrivateRoom } from './socket.events';
-
-const myUserId = '698101b89afe0491b50a7477';
-const otherUserId = '6980f2c849cc236f93afa9cd';
 
 export const getPrivateRoomId = (userId1: string, userId2: string) => {
   return [userId1, userId2].sort().join(':');
@@ -28,7 +29,34 @@ function createMessageChannel() {
     return () => socket.off('chat:private-message', handler);
   });
 }
+function createTypingChannel() {
+  function* watchTyping(): Generator {
+    const channel: any = yield call(createTypingChannel);
 
+    while (true) {
+      const { isTyping } = yield take(channel);
+
+      if (isTyping) {
+        yield put(typingStarted());
+      } else {
+        yield put(typingStopped());
+      }
+    }
+  }
+
+  return eventChannel(emit => {
+    const socket = getSocket();
+    if (!socket) return () => {};
+
+    const handler = (payload: any) => {
+      emit(payload);
+    };
+
+    socket.on('chat:typing', handler);
+
+    return () => socket.off('chat:typing', handler);
+  });
+}
 function* watchMessages(): Generator {
   const channel: any = yield call(createMessageChannel);
 
@@ -59,6 +87,7 @@ function* handleSocketConnect(): Generator {
   socket.connect();
 
   yield fork(watchMessages);
+  yield fork(watchTyping);
 }
 
 function* handleSocketDisconnect(): Generator {
@@ -94,6 +123,20 @@ function* handleLeavePrivateRoom(
 
   socket.emit('chat:leave', roomId);
   console.log('🚪 left room', roomId);
+}
+
+function* watchTyping(): Generator {
+  const channel: any = yield call(createTypingChannel);
+
+  while (true) {
+    const { isTyping } = yield take(channel);
+
+    if (isTyping) {
+      yield put(typingStarted());
+    } else {
+      yield put(typingStopped());
+    }
+  }
 }
 
 export default function* socketSaga(): Generator {

@@ -4,6 +4,8 @@ export const fetchMeApi = () => {
   return api.get('/users/me');
 };
 
-export const getUserByIdApi = (userId: string) => {
-  return api.get(`/users/${userId}`);
+export const fetchUserByEmailApi = (email: string) => {
+  return api.get('/users/by-email', {
+    params: { email },
+  });
 };
