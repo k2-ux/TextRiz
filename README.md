@@ -1,7 +1,13 @@
-<img width="1080" height="2400" alt="Screenshot_1771091873" src="https://github.com/user-attachments/assets/4f7fad61-862d-4e15-9ef0-e260c5f10672" />
-<img width="1080" height="2400" alt="Screenshot_1771091868" src="https://github.com/user-attachments/assets/5673de55-da7f-4fd0-ba9c-dc7e72cc8211" />
-<img width="1080" height="2400" alt="Screenshot_1771091852" src="https://github.com/user-attachments/assets/5f621e9f-3682-4ff1-b826-5ebdbe9e2907" />
-<img width="1080" height="2400" alt="Screenshot_1771091710" src="https://github.com/user-attachments/assets/fdd27c8f-f175-4704-b233-b1f8abcbee00" />
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4f7fad61-862d-4e15-9ef0-e260c5f10672" width="250" />
+  <img src="https://github.com/user-attachments/assets/5673de55-da7f-4fd0-ba9c-dc7e72cc8211" width="250" />
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5f621e9f-3682-4ff1-b826-5ebdbe9e2907" width="250" />
+  <img src="https://github.com/user-attachments/assets/fdd27c8f-f175-4704-b233-b1f8abcbee00" width="250" />
+</p>
+
 
 Textriz – Real-Time Private Chat App
 
